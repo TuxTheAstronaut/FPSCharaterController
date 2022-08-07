@@ -4,17 +4,14 @@ extends KinematicBody
 
 # Camera
 export(float) var mouse_sensitivity = 10
-export(NodePath) var head_path = "Head"
-export(NodePath) var cam_path = "Head/Camera"
-export(NodePath) var collision_path = "Collision"
-export(NodePath) var collision_ray_path = "CollisionRay"
 export(float) var FOV = 80.0
 var mouse_axis := Vector2()
 var camera_roll := 0.5
-onready var head: Spatial = get_node(head_path)
-onready var cam: Camera = get_node(cam_path)
-onready var collision: CollisionShape = get_node(collision_path)
-onready var collision_ray: RayCast = get_node(collision_ray_path)
+onready var ctrl_axis: = get_node("%ControlAxis")
+onready var head: Spatial = get_node("%Head")
+onready var cam: Camera = get_node("%Camera")
+onready var collision: CollisionShape = get_node("%Collision")
+onready var collision_ray: RayCast = get_node("%CollisionRay")
 # Move
 export(Vector3) var velocity := Vector3()
 var localVelocity := Vector3()
@@ -38,6 +35,11 @@ var _speed: int
 var _is_sprinting_input := false
 var _is_jumping_input := false
 
+# Setup
+func _ready():
+	ctrl_axis.set_physics_interpolation_mode(Node.PHYSICS_INTERPOLATION_MODE_OFF)
+	ctrl_axis.set_as_toplevel(true)
+
 # Movment input
 func _process(_delta: float) -> void:
 	move_axis.x = Input.get_action_strength("move_forward") - Input.get_action_strength("move_backward")
@@ -48,7 +50,12 @@ func _process(_delta: float) -> void:
 	
 	if Input.is_action_pressed("move_sprint"):
 		_is_sprinting_input = true
-		
+	
+	var target = get_global_transform_interpolated().origin
+	ctrl_axis.global_transform.origin = target
+	
+	cam.rotation.z = clamp(lerp(cam.rotation.z,-localVelocity.x/125,camera_roll),deg2rad(-20),deg2rad(20))
+	cam.rotation.x = clamp(lerp(cam.rotation.x,localVelocity.z/150,camera_roll),deg2rad(-20),deg2rad(20))
 
 # Called when there is an input event
 func _input(event: InputEvent) -> void:
@@ -62,7 +69,7 @@ func _input(event: InputEvent) -> void:
 # Determins the direction vector based on the input and player rotation
 func direction_input() -> void:
 	direction = Vector3()
-	var aim: Basis = get_global_transform().basis
+	var aim: Basis = ctrl_axis.get_global_transform().basis
 	if move_axis.x >= 0.5:
 		direction -= aim.z
 	if move_axis.x <= -0.5:
@@ -99,7 +106,7 @@ func walk(delta: float) -> void:
 		if is_on_wall() and move_axis.x > 0 and sprinting:
 			if camera_roll == 0.5 and not crouching and can_wallrun():
 				velocity += get_slide_collision(0).normal * 5
-				velocity += -global_transform.basis.z * sprint_speed
+				velocity += -ctrl_axis.global_transform.basis.z * sprint_speed
 				velocity.y = jump_height
 		
 		
@@ -117,8 +124,6 @@ func walk(delta: float) -> void:
 	_is_sprinting_input = false
 	localVelocity = cam.to_local(translation + velocity)
 	
-	cam.rotation.z = lerp(cam.rotation.z,-localVelocity.x/125,camera_roll)
-	cam.rotation.x = lerp(cam.rotation.x,localVelocity.z/150,camera_roll)
 
 # Handels players acceleration and deacceleration
 func accelerate(delta: float) -> void:
@@ -162,7 +167,7 @@ func camera_rotation() -> void:
 		var vertical: float = -mouse_axis.y * (mouse_sensitivity / 100.0)
 		mouse_axis = Vector2()
 		
-		rotate_y(deg2rad(horizontal))
+		ctrl_axis.rotate_y(deg2rad(horizontal))
 		head.rotate_x(deg2rad(vertical))
 		
 		# Clamp mouse rotation

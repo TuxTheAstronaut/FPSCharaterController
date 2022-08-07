@@ -54,7 +54,10 @@ move_crouch={
 
 [physics]
 
+3d/smooth_trimesh_collision=true
 common/enable_pause_aware_picking=true
+3d/physics_engine="Bullet"
+common/physics_interpolation=true
 
 [rendering]
 

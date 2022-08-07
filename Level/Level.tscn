@@ -25,12 +25,22 @@ transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -20, 1,
 [node name="Wall5" parent="Floor" instance=ExtResource( 2 )]
 transform = Transform( -0.25, 0, 0.866025, 0, 1, 0, -0.433013, 0, -0.5, -9, -1, 0 )
 
+[node name="Label3D" type="Label3D" parent="Floor/Wall5"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -9.53674e-07, 2.96128, 0.502908 )
+pixel_size = 0.05
+text = "Run Along wall  and jump to  walldash"
+
 [node name="Wall7" parent="Floor" instance=ExtResource( 2 )]
 transform = Transform( 0.129409, 0.965926, 0, 2.5991e-08, 0, -1, -0.482963, 0.258819, -2.98023e-08, 18.4791, 2.28609, 2.27196 )
 
 [node name="Wall6" parent="Floor/Wall7" instance=ExtResource( 2 )]
 transform = Transform( 1, 2.98023e-08, 5.96046e-08, 3.72529e-08, 0.707107, 0.707107, 1.05367e-08, -0.707107, 0.707107, 0.0180936, -9.8842, 4.09817 )
 skeleton = NodePath("../..")
+
+[node name="Label3D" type="Label3D" parent="Floor/Wall7"]
+transform = Transform( -5.96046e-08, -7.54979e-08, -1, 1, -4.37114e-08, -4.47035e-08, -4.37114e-08, -1, 7.54979e-08, -20.0073, 1.90735e-06, -2.6226e-06 )
+pixel_size = 0.05
+text = "Crouch to go under"
 
 [node name="Player" parent="." instance=ExtResource( 4 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0 )
